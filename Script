@@ -274,6 +274,17 @@ createButton("Generator ESP", function()
 	end
 end)
 
+-- Kill the Intruder
+createButton("Kill the Intruder", function()
+	local intruder = workspace:FindFirstChild("Intruder")
+	if intruder then
+		intruder:Destroy()
+		print("Intruder destroyed!")
+	else
+		ErrorLog.Text = "Error Log: Intruder not found."
+	end
+end)
+
 -- Return to Lift
 createButton("Return to Lift", function()
 	local char = LocalPlayer.Character
