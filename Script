@@ -78,6 +78,69 @@ local function createButton(name, callback)
 	return Button
 end
 
+--// ESP Helpers
+
+-- Highlight helper
+local function highlightTarget(target, color)
+	if target:FindFirstChildOfClass("Highlight") then return end
+	local highlight = Instance.new("Highlight")
+	highlight.Adornee = target
+	highlight.FillColor = color
+	highlight.FillTransparency = 0.5
+	highlight.OutlineColor = Color3.fromRGB(255,255,255)
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = target
+end
+
+-- Tracer helper
+local function createTracer(target, color)
+	local line = Drawing.new("Line")
+	line.Visible = true
+	line.Color = color
+	line.Thickness = 2
+	local connection
+	connection = RunService.RenderStepped:Connect(function()
+		if target and target:FindFirstChild("HumanoidRootPart") and target:FindFirstChildOfClass("Humanoid") then
+			local hrp = target:FindFirstChild("HumanoidRootPart")
+			local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+			if onScreen then
+				line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y) -- bottom center
+				line.To = Vector2.new(pos.X, pos.Y)
+				line.Visible = true
+			else
+				line.Visible = false
+			end
+		else
+			line.Visible = false
+			connection:Disconnect()
+			line:Remove()
+		end
+	end)
+end
+
+-- Billboard name tag helper
+local function createNameTag(target, text, color)
+	if target:FindFirstChild("NameTag") then return end
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "NameTag"
+	billboard.Size = UDim2.new(0,200,0,50)
+	billboard.StudsOffset = Vector3.new(0,3,0)
+	billboard.AlwaysOnTop = true
+	billboard.MaxDistance = 500
+	billboard.Parent = target
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1,0,1,0)
+	label.BackgroundTransparency = 1
+	label.Text = text
+	label.TextColor3 = color
+	label.TextStrokeTransparency = 0
+	label.TextScaled = true
+	label.Font = Enum.Font.SourceSansBold
+	label.Parent = billboard
+end
+
 --// Buttons
 
 -- Infinite Yield
@@ -118,112 +181,65 @@ end)
 -- Intruder ESP
 createButton("Intruder ESP", function()
 	local intruder = workspace:WaitForChild("Intruder")
-	if not intruder then
-		error("Intruder not found in workspace!")
-		return
+	if intruder and intruder:IsA("Model") then
+		highlightTarget(intruder, Color3.fromRGB(255,0,0))
+		createTracer(intruder, Color3.fromRGB(255,0,0))
+		createNameTag(intruder, "Intruder", Color3.fromRGB(255,0,0))
 	end
-
-	-- Highlight
-	local box = Instance.new("SelectionBox")
-	box.Name = "IntruderHighlight"
-	box.Adornee = intruder
-	box.Color3 = Color3.fromRGB(255,0,0)
-	box.LineThickness = 0.05
-	box.Parent = intruder
-
-	-- BillboardGui name tag
-	local billboard = Instance.new("BillboardGui")
-	billboard.Size = UDim2.new(0,200,0,50)
-	billboard.StudsOffset = Vector3.new(0,3,0)
-	billboard.AlwaysOnTop = true
-	billboard.Parent = intruder
-
-	local label = Instance.new("TextLabel")
-	label.Text = "Intruder"
-	label.Size = UDim2.new(1,0,1,0)
-	label.BackgroundTransparency = 1
-	label.TextColor3 = Color3.fromRGB(255,0,0)
-	label.Font = Enum.Font.SourceSansBold
-	label.TextScaled = true
-	label.Parent = billboard
-
-	-- Tracer (Beam)
-	local att1 = Instance.new("Attachment", intruder)
-	local att2 = Instance.new("Attachment", Camera)
-	local beam = Instance.new("Beam")
-	beam.Color = ColorSequence.new(Color3.fromRGB(255,0,0))
-	beam.Width0 = 0.05
-	beam.Width1 = 0.05
-	beam.Attachment0 = att1
-	beam.Attachment1 = att2
-	beam.FaceCamera = true
-	beam.Parent = intruder
 end)
 
 -- Generator ESP
 createButton("Generator ESP", function()
 	local gensFolder = workspace:WaitForChild("Generators")
 	for _, gen in pairs(gensFolder:GetChildren()) do
-		if gen:IsA("BasePart") then
-			-- Highlight
-			local box = Instance.new("SelectionBox")
-			box.Adornee = gen
-			box.Color3 = Color3.fromRGB(255,255,0)
-			box.LineThickness = 0.05
-			box.Parent = gen
+		if gen:IsA("BasePart") or gen:IsA("Model") then
+			highlightTarget(gen, Color3.fromRGB(255,255,0))
+			createTracer(gen, Color3.fromRGB(255,255,0))
 
-			-- Tracer
-			local att1 = Instance.new("Attachment", gen)
-			local att2 = Instance.new("Attachment", Camera)
-			local beam = Instance.new("Beam")
-			beam.Color = ColorSequence.new(Color3.fromRGB(255,255,0))
-			beam.Width0 = 0.05
-			beam.Width1 = 0.05
-			beam.Attachment0 = att1
-			beam.Attachment1 = att2
-			beam.FaceCamera = true
-			beam.Parent = gen
+			-- BillboardGui
+			if not gen:FindFirstChild("NameTag") then
+				local gui = Instance.new("BillboardGui")
+				gui.Name = "NameTag"
+				gui.Size = UDim2.new(0,200,0,60)
+				gui.StudsOffset = Vector3.new(0,4,0)
+				gui.AlwaysOnTop = true
+				gui.MaxDistance = 500
+				gui.Parent = gen
 
-			-- Billboard GUI
-			local gui = Instance.new("BillboardGui")
-			gui.Size = UDim2.new(0,200,0,60)
-			gui.StudsOffset = Vector3.new(0,4,0)
-			gui.AlwaysOnTop = true
-			gui.Parent = gen
+				local healthLabel = Instance.new("TextLabel")
+				healthLabel.Size = UDim2.new(1,0,0.5,0)
+				healthLabel.BackgroundTransparency = 1
+				healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
+				healthLabel.TextStrokeTransparency = 0.2
+				healthLabel.Font = Enum.Font.SourceSansBold
+				healthLabel.TextScaled = true
+				healthLabel.Parent = gui
 
-			local healthLabel = Instance.new("TextLabel")
-			healthLabel.Size = UDim2.new(1,0,0.5,0)
-			healthLabel.BackgroundTransparency = 1
-			healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
-			healthLabel.TextStrokeTransparency = 0.2
-			healthLabel.Font = Enum.Font.SourceSansBold
-			healthLabel.TextScaled = true
-			healthLabel.Parent = gui
+				local usingLabel = Instance.new("TextLabel")
+				usingLabel.Position = UDim2.new(0,0,0.5,0)
+				usingLabel.Size = UDim2.new(1,0,0.5,0)
+				usingLabel.BackgroundTransparency = 1
+				usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
+				usingLabel.TextStrokeTransparency = 0.2
+				usingLabel.Font = Enum.Font.SourceSansBold
+				usingLabel.TextScaled = true
+				usingLabel.Parent = gui
 
-			local usingLabel = Instance.new("TextLabel")
-			usingLabel.Position = UDim2.new(0,0,0.5,0)
-			usingLabel.Size = UDim2.new(1,0,0.5,0)
-			usingLabel.BackgroundTransparency = 1
-			usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
-			usingLabel.TextStrokeTransparency = 0.2
-			usingLabel.Font = Enum.Font.SourceSansBold
-			usingLabel.TextScaled = true
-			usingLabel.Parent = gui
-
-			local health = gen:WaitForChild("health")
-			local inUse = gen:WaitForChild("inUse")
-			local plrUsing = gen:WaitForChild("plrUsing")
-
-			RunService.RenderStepped:Connect(function()
-				pcall(function()
-					healthLabel.Text = "Health: "..tostring(health.Value)
-					if inUse.Value == true then
-						usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
-					else
-						usingLabel.Text = ""
-					end
+				-- Constant update
+				local health = gen:WaitForChild("health")
+				local inUse = gen:WaitForChild("inUse")
+				local plrUsing = gen:WaitForChild("plrUsing")
+				RunService.RenderStepped:Connect(function()
+					pcall(function()
+						healthLabel.Text = "Health: "..tostring(health.Value)
+						if inUse.Value == true then
+							usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
+						else
+							usingLabel.Text = ""
+						end
+					end)
 				end)
-			end)
+			end
 		end
 	end
 end)
