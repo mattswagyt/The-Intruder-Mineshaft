@@ -1,0 +1,239 @@
+-- Roblox Lua Script for "The Intruder - Mineshaft" Map (By BMF)
+-- LocalScript handles UI, cheats, ESPs, and utility buttons
+
+--// Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
+local UIS = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+
+--// UI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Name = "IntruderMineshaftUI"
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Visible = true
+
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Text = "The Intruder - Mineshaft (By BMF)"
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+
+local ErrorLog = Instance.new("TextLabel")
+ErrorLog.Parent = MainFrame
+ErrorLog.Text = "Error Log: None"
+ErrorLog.Size = UDim2.new(1, 0, 0, 30)
+ErrorLog.Position = UDim2.new(0,0,0,35)
+ErrorLog.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ErrorLog.TextColor3 = Color3.fromRGB(255, 85, 85)
+ErrorLog.Font = Enum.Font.SourceSans
+ErrorLog.TextSize = 14
+ErrorLog.TextWrapped = true
+ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = MainFrame
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0,5)
+
+--// Toggle UI
+UIS.InputBegan:Connect(function(input, processed)
+	if not processed and input.KeyCode == Enum.KeyCode.Delete then
+		MainFrame.Visible = not MainFrame.Visible
+	end
+end)
+
+--// Function to create buttons
+local function createButton(name, callback)
+	local Button = Instance.new("TextButton")
+	Button.Parent = MainFrame
+	Button.Text = name
+	Button.Size = UDim2.new(1,0,0,30)
+	Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	Button.TextColor3 = Color3.fromRGB(255,255,255)
+	Button.Font = Enum.Font.SourceSans
+	Button.TextSize = 16
+	Button.MouseButton1Click:Connect(function()
+		local success, err = pcall(callback)
+		if not success then
+			ErrorLog.Text = "Error Log: "..tostring(err)
+		end
+	end)
+	return Button
+end
+
+--// Buttons
+
+-- Infinite Yield
+createButton("Infinite Yield", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+
+-- Dark Dex
+createButton("Dark Dex", function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+end)
+
+-- Win Game (WIP)
+createButton("Win Game (WIP)", function()
+	print("Win Game feature coming soon!")
+end)
+
+-- God Mode (WIP)
+createButton("God Mode (WIP)", function()
+	print("God Mode feature coming soon!")
+end)
+
+-- Infinite Stamina (WIP)
+createButton("Infinite Stamina (WIP)", function()
+	print("Infinite Stamina feature coming soon!")
+end)
+
+-- Full Bright
+createButton("Full Bright", function()
+	Lighting.Brightness = 5
+	Lighting.ClockTime = 14
+	Lighting.FogEnd = 100000
+	Lighting.GlobalShadows = false
+	Lighting.OutdoorAmbient = Color3.new(1,1,1)
+	print("Full Bright activated!")
+end)
+
+-- Intruder ESP
+createButton("Intruder ESP", function()
+	local intruder = workspace:WaitForChild("Intruder")
+	if not intruder then
+		error("Intruder not found in workspace!")
+		return
+	end
+
+	-- Highlight
+	local box = Instance.new("SelectionBox")
+	box.Name = "IntruderHighlight"
+	box.Adornee = intruder
+	box.Color3 = Color3.fromRGB(255,0,0)
+	box.LineThickness = 0.05
+	box.Parent = intruder
+
+	-- BillboardGui name tag
+	local billboard = Instance.new("BillboardGui")
+	billboard.Size = UDim2.new(0,200,0,50)
+	billboard.StudsOffset = Vector3.new(0,3,0)
+	billboard.AlwaysOnTop = true
+	billboard.Parent = intruder
+
+	local label = Instance.new("TextLabel")
+	label.Text = "Intruder"
+	label.Size = UDim2.new(1,0,1,0)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(255,0,0)
+	label.Font = Enum.Font.SourceSansBold
+	label.TextScaled = true
+	label.Parent = billboard
+
+	-- Tracer (Beam)
+	local att1 = Instance.new("Attachment", intruder)
+	local att2 = Instance.new("Attachment", Camera)
+	local beam = Instance.new("Beam")
+	beam.Color = ColorSequence.new(Color3.fromRGB(255,0,0))
+	beam.Width0 = 0.05
+	beam.Width1 = 0.05
+	beam.Attachment0 = att1
+	beam.Attachment1 = att2
+	beam.FaceCamera = true
+	beam.Parent = intruder
+end)
+
+-- Generator ESP
+createButton("Generator ESP", function()
+	local gensFolder = workspace:WaitForChild("Generators")
+	for _, gen in pairs(gensFolder:GetChildren()) do
+		if gen:IsA("BasePart") then
+			-- Highlight
+			local box = Instance.new("SelectionBox")
+			box.Adornee = gen
+			box.Color3 = Color3.fromRGB(255,255,0)
+			box.LineThickness = 0.05
+			box.Parent = gen
+
+			-- Tracer
+			local att1 = Instance.new("Attachment", gen)
+			local att2 = Instance.new("Attachment", Camera)
+			local beam = Instance.new("Beam")
+			beam.Color = ColorSequence.new(Color3.fromRGB(255,255,0))
+			beam.Width0 = 0.05
+			beam.Width1 = 0.05
+			beam.Attachment0 = att1
+			beam.Attachment1 = att2
+			beam.FaceCamera = true
+			beam.Parent = gen
+
+			-- Billboard GUI
+			local gui = Instance.new("BillboardGui")
+			gui.Size = UDim2.new(0,200,0,60)
+			gui.StudsOffset = Vector3.new(0,4,0)
+			gui.AlwaysOnTop = true
+			gui.Parent = gen
+
+			local healthLabel = Instance.new("TextLabel")
+			healthLabel.Size = UDim2.new(1,0,0.5,0)
+			healthLabel.BackgroundTransparency = 1
+			healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
+			healthLabel.TextStrokeTransparency = 0.2
+			healthLabel.Font = Enum.Font.SourceSansBold
+			healthLabel.TextScaled = true
+			healthLabel.Parent = gui
+
+			local usingLabel = Instance.new("TextLabel")
+			usingLabel.Position = UDim2.new(0,0,0.5,0)
+			usingLabel.Size = UDim2.new(1,0,0.5,0)
+			usingLabel.BackgroundTransparency = 1
+			usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
+			usingLabel.TextStrokeTransparency = 0.2
+			usingLabel.Font = Enum.Font.SourceSansBold
+			usingLabel.TextScaled = true
+			usingLabel.Parent = gui
+
+			local health = gen:WaitForChild("health")
+			local inUse = gen:WaitForChild("inUse")
+			local plrUsing = gen:WaitForChild("plrUsing")
+
+			RunService.RenderStepped:Connect(function()
+				pcall(function()
+					healthLabel.Text = "Health: "..tostring(health.Value)
+					if inUse.Value == true then
+						usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
+					else
+						usingLabel.Text = ""
+					end
+				end)
+			end)
+		end
+	end
+end)
+
+-- Return to Lift
+createButton("Return to Lift", function()
+	local char = LocalPlayer.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		char.HumanoidRootPart.CFrame = CFrame.new(28,4,-39)
+	end
+end)
+
+print("The Intruder - Mineshaft Script Loaded Successfully")
