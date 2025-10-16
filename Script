@@ -188,13 +188,43 @@ createButton("Intruder ESP", function()
 	end
 end)
 
--- Generator ESP
+-- Generator ESP (with proper tracers)
 createButton("Generator ESP", function()
 	local gensFolder = workspace:WaitForChild("Generators")
 	for _, gen in pairs(gensFolder:GetChildren()) do
-		if gen:IsA("BasePart") or gen:IsA("Model") then
+		local mainPart = nil
+		if gen:IsA("Model") then
+			mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
+		elseif gen:IsA("BasePart") then
+			mainPart = gen
+		end
+
+		if mainPart then
+			-- Highlight
 			highlightTarget(gen, Color3.fromRGB(255,255,0))
-			createTracer(gen, Color3.fromRGB(255,255,0))
+
+			-- Tracer
+			local line = Drawing.new("Line")
+			line.Visible = true
+			line.Color = Color3.fromRGB(255,255,0)
+			line.Thickness = 2
+			local conn
+			conn = RunService.RenderStepped:Connect(function()
+				if mainPart then
+					local pos, onScreen = Camera:WorldToViewportPoint(mainPart.Position)
+					if onScreen then
+						line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
+						line.To = Vector2.new(pos.X, pos.Y)
+						line.Visible = true
+					else
+						line.Visible = false
+					end
+				else
+					line.Visible = false
+					conn:Disconnect()
+					line:Remove()
+				end
+			end)
 
 			-- BillboardGui
 			if not gen:FindFirstChild("NameTag") then
@@ -225,10 +255,10 @@ createButton("Generator ESP", function()
 				usingLabel.TextScaled = true
 				usingLabel.Parent = gui
 
-				-- Constant update
 				local health = gen:WaitForChild("health")
 				local inUse = gen:WaitForChild("inUse")
 				local plrUsing = gen:WaitForChild("plrUsing")
+
 				RunService.RenderStepped:Connect(function()
 					pcall(function()
 						healthLabel.Text = "Health: "..tostring(health.Value)
