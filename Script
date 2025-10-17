@@ -164,6 +164,23 @@ createButton("God Mode (WIP)", function()
 end)
 
 createButton("Infinite Stamina (WIP)", function()
+	local Players = game:GetService("Players")
+	local UIS = game:GetService("UserInputService")
+	local LocalPlayer = Players.LocalPlayer
+	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local Humanoid = Character:WaitForChild("Humanoid")
+
+	-- Destroy Regen paths
+	local function safeDestroy(path)
+		if path and path.Destroy then
+			pcall(function() path:Destroy() end)
+		end
+	end
+
+	safeDestroy(game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui") and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Stamina") and game:GetService("Players").LocalPlayer.PlayerGui.Stamina:FindFirstChild("StaminaDisplay") and game:GetService("Players").LocalPlayer.PlayerGui.Stamina.StaminaDisplay:FindFirstChild("Regen"))
+	safeDestroy(game:GetService("StarterGui"):FindFirstChild("Stamina") and game:GetService("StarterGui").Stamina:FindFirstChild("StaminaDisplay") and game:GetService("StarterGui").Stamina.StaminaDisplay:FindFirstChild("Regen"))
+
+	-- Infinite stamina setup
 	local staminaGui = game:GetService("StarterGui"):FindFirstChild("Stamina")
 	if staminaGui then
 		local display = staminaGui:FindFirstChild("StaminaDisplay")
@@ -174,10 +191,10 @@ createButton("Infinite Stamina (WIP)", function()
 				spawn(function()
 					while true do
 						pcall(function()
-							current.Value = 100     -- Keep stamina at max
-							active.Value = false    -- Prevent it from being "used"
+							current.Value = 100
+							active.Value = false
 						end)
-						wait(0.1)  -- Update 10x per second
+						wait(0.1)
 					end
 				end)
 				print("Infinite Stamina enabled!")
@@ -190,6 +207,24 @@ createButton("Infinite Stamina (WIP)", function()
 	else
 		ErrorLog.Text = "Error Log: Stamina GUI not found."
 	end
+
+	-- Shift-based speed control
+	local shiftHeld = false
+
+	UIS.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		if input.KeyCode == Enum.KeyCode.LeftShift then
+			shiftHeld = true
+			Humanoid.WalkSpeed = 16
+		end
+	end)
+
+	UIS.InputEnded:Connect(function(input)
+		if input.KeyCode == Enum.KeyCode.LeftShift then
+			shiftHeld = false
+			Humanoid.WalkSpeed = 8
+		end
+	end)
 end)
 
 -- Full Bright
