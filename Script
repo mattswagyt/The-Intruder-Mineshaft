@@ -163,9 +163,33 @@ createButton("God Mode (WIP)", function()
 	print("God Mode feature coming soon!")
 end)
 
--- Infinite Stamina (WIP)
 createButton("Infinite Stamina (WIP)", function()
-	print("Infinite Stamina feature coming soon!")
+	local staminaGui = game:GetService("StarterGui"):FindFirstChild("Stamina")
+	if staminaGui then
+		local display = staminaGui:FindFirstChild("StaminaDisplay")
+		if display then
+			local current = display:FindFirstChild("Current")
+			local active = display:FindFirstChild("Active")
+			if current and active then
+				spawn(function()
+					while true do
+						pcall(function()
+							current.Value = 100     -- Keep stamina at max
+							active.Value = false    -- Prevent it from being "used"
+						end)
+						wait(0.1)  -- Update 10x per second
+					end
+				end)
+				print("Infinite Stamina enabled!")
+			else
+				ErrorLog.Text = "Error Log: Current or Active value not found."
+			end
+		else
+			ErrorLog.Text = "Error Log: StaminaDisplay not found."
+		end
+	else
+		ErrorLog.Text = "Error Log: Stamina GUI not found."
+	end
 end)
 
 -- Full Bright
