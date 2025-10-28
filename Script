@@ -47,19 +47,19 @@ ErrorLog.TextSize = 14
 ErrorLog.TextWrapped = true
 ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
--- Create container for buttons
+-- Button container
 local ButtonContainer = Instance.new("Frame")
 ButtonContainer.Parent = MainFrame
-ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- Leaves space for title + error log
+ButtonContainer.Size = UDim2.new(1, 0, 1, -70)
 ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
 ButtonContainer.BackgroundTransparency = 1
 
--- Correct UIListLayout parent
+-- UIListLayout inside container
 local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = ButtonContainer -- ✅ Must be ButtonContainer
+UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center -- optional, center buttons horizontally
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 --// Toggle UI
 UIS.InputBegan:Connect(function(input, processed)
@@ -68,19 +68,20 @@ UIS.InputBegan:Connect(function(input, processed)
 	end
 end)
 
+-- Button creator function
 local function createButton(name, callback)
-	local Button = Instance.new("TextButton")
-	Button.Parent = ButtonContainer -- ✅ Parent to container
-	Button.Size = UDim2.new(0.9, 0, 0, 30) -- 90% width, 30px height
-	Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-	Button.Font = Enum.Font.SourceSans
-	Button.TextSize = 16
-	Button.Text = name
-	Button.MouseButton1Click:Connect(function()
-		pcall(callback)
-	end)
-	return Button
+    local Button = Instance.new("TextButton")
+    Button.Parent = ButtonContainer -- ✅ must parent to container
+    Button.Size = UDim2.new(0.9, 0, 0, 30) -- optional: 90% width for nice padding
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 16
+    Button.Text = name
+    Button.MouseButton1Click:Connect(function()
+        pcall(callback)
+    end)
+    return Button
 end
 
 --// ESP Helpers
