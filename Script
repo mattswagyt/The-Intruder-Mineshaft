@@ -227,6 +227,35 @@ createButton("Infinite Stamina (WIP)", function()
 	end)
 end)
 
+-- Teleport Helper
+local function tpTo(pos)
+    local plr = game.Players.LocalPlayer
+    if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        plr.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
+    end
+end
+
+-- TP Buttons
+createButton("TP to Gen 1", function()
+    tpTo(Vector3.new(49, 4, -87))
+end)
+
+createButton("TP to Gen 2", function()
+    tpTo(Vector3.new(131, 4, -88))
+end)
+
+createButton("TP to Gen 3", function()
+    tpTo(Vector3.new(127, 4, 32))
+end)
+
+createButton("TP to Gen 4", function()
+    tpTo(Vector3.new(29, 4, 60))
+end)
+
+createButton("TP to Gen 5", function()
+    tpTo(Vector3.new(154, 4, 60))
+end)
+
 -- Full Bright
 createButton("Full Bright", function()
 	Lighting.Brightness = 5
@@ -235,6 +264,29 @@ createButton("Full Bright", function()
 	Lighting.GlobalShadows = false
 	Lighting.OutdoorAmbient = Color3.new(1,1,1)
 	print("Full Bright activated!")
+end)
+
+createButton("Never Fail Generators", function()
+    -- Remove puzzle UI (local copy)
+    local plr = game:GetService("Players").LocalPlayer
+
+    local function safeDestroy(obj)
+        if obj and obj.Destroy then
+            obj:Destroy()
+        end
+    end
+
+    -- PlayerGui puzzle
+    safeDestroy(plr:FindFirstChild("PlayerGui") and plr.PlayerGui:FindFirstChild("Puzzle"))
+
+    -- Backpack explode
+    safeDestroy(plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Explode"))
+
+    -- StarterGui
+    safeDestroy(game:GetService("StarterGui"):FindFirstChild("Puzzle"))
+
+    -- StarterPack explode
+    safeDestroy(game:GetService("StarterPack"):FindFirstChild("Explode"))
 end)
 
 -- Intruder ESP
@@ -286,52 +338,64 @@ createButton("Generator ESP", function()
 			end)
 
 			-- BillboardGui
-			if not gen:FindFirstChild("NameTag") then
-				local gui = Instance.new("BillboardGui")
-				gui.Name = "NameTag"
-				gui.Size = UDim2.new(0,200,0,60)
-				gui.StudsOffset = Vector3.new(0,4,0)
-				gui.AlwaysOnTop = true
-				gui.MaxDistance = 500
-				gui.Parent = gen
+if not gen:FindFirstChild("NameTag") then
+    local gui = Instance.new("BillboardGui")
+    gui.Name = "NameTag"
+    gui.Size = UDim2.new(0,200,0,80) -- made slightly taller
+    gui.StudsOffset = Vector3.new(0,4,0)
+    gui.AlwaysOnTop = true
+    gui.MaxDistance = 500
+    gui.Parent = gen
 
-				local healthLabel = Instance.new("TextLabel")
-				healthLabel.Size = UDim2.new(1,0,0.5,0)
-				healthLabel.BackgroundTransparency = 1
-				healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
-				healthLabel.TextStrokeTransparency = 0.2
-				healthLabel.Font = Enum.Font.SourceSansBold
-				healthLabel.TextScaled = true
-				healthLabel.Parent = gui
+    -- ✅ NEW: Generator Name Label (top)
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1,0,0.33,0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
+    nameLabel.TextStrokeTransparency = 0.2
+    nameLabel.Font = Enum.Font.SourceSansBold
+    nameLabel.TextScaled = true
+    nameLabel.Text = "Generator " .. tostring(gen.Name)
+    nameLabel.Parent = gui
 
-				local usingLabel = Instance.new("TextLabel")
-				usingLabel.Position = UDim2.new(0,0,0.5,0)
-				usingLabel.Size = UDim2.new(1,0,0.5,0)
-				usingLabel.BackgroundTransparency = 1
-				usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
-				usingLabel.TextStrokeTransparency = 0.2
-				usingLabel.Font = Enum.Font.SourceSansBold
-				usingLabel.TextScaled = true
-				usingLabel.Parent = gui
+    -- Health label (middle)
+    local healthLabel = Instance.new("TextLabel")
+    healthLabel.Position = UDim2.new(0,0,0.33,0)
+    healthLabel.Size = UDim2.new(1,0,0.33,0)
+    healthLabel.BackgroundTransparency = 1
+    healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
+    healthLabel.TextStrokeTransparency = 0.2
+    healthLabel.Font = Enum.Font.SourceSansBold
+    healthLabel.TextScaled = true
+    healthLabel.Parent = gui
 
-				local health = gen:WaitForChild("health")
-				local inUse = gen:WaitForChild("inUse")
-				local plrUsing = gen:WaitForChild("plrUsing")
+    -- In-use label (bottom)
+    local usingLabel = Instance.new("TextLabel")
+    usingLabel.Position = UDim2.new(0,0,0.66,0)
+    usingLabel.Size = UDim2.new(1,0,0.33,0)
+    usingLabel.BackgroundTransparency = 1
+    usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
+    usingLabel.TextStrokeTransparency = 0.2
+    usingLabel.Font = Enum.Font.SourceSansBold
+    usingLabel.TextScaled = true
+    usingLabel.Parent = gui
 
-				RunService.RenderStepped:Connect(function()
-					pcall(function()
-						healthLabel.Text = "Health: "..tostring(health.Value)
-						if inUse.Value == true then
-							usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
-						else
-							usingLabel.Text = ""
-						end
-					end)
-				end)
-			end
-		end
-	end
-end)
+    -- Values
+    local health = gen:WaitForChild("health")
+    local inUse = gen:WaitForChild("inUse")
+    local plrUsing = gen:WaitForChild("plrUsing")
+
+    RunService.RenderStepped:Connect(function()
+        pcall(function()
+            healthLabel.Text = "Health: "..tostring(health.Value)
+            if inUse.Value == true then
+                usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
+            else
+                usingLabel.Text = ""
+            end
+        end)
+    end)
+end
 
 -- Kill the Intruder
 createButton("Kill the Intruder", function()
