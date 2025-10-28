@@ -277,66 +277,43 @@ createButton("Intruder ESP", function()
 	end
 end)
 
--- Generator ESP
 createButton("Generator ESP", function()
 	local gensFolder = workspace:WaitForChild("Generators")
 	for _, gen in pairs(gensFolder:GetChildren()) do
-		if not gen:IsA("Model") then continue end
-		local mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
-		if not mainPart then continue end
-		highlightTarget(gen, Color3.fromRGB(255,255,0))
-		createTracer(gen, Color3.fromRGB(255,255,0))
+		if gen:IsA("Model") then
+			local mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
+			if mainPart then
+				-- Highlight
+				local highlight = Instance.new("Highlight")
+				highlight.Adornee = mainPart
+				highlight.FillColor = Color3.fromRGB(255, 255, 0)
+				highlight.FillTransparency = 0.5
+				highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+				highlight.OutlineTransparency = 0
+				highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+				highlight.Parent = mainPart
 
-		if not gen:FindFirstChild("NameTag") then
-			local gui = Instance.new("BillboardGui")
-			gui.Name = "NameTag"
-			gui.Size = UDim2.new(0,200,0,80)
-			gui.StudsOffset = Vector3.new(0,4,0)
-			gui.AlwaysOnTop = true
-			gui.MaxDistance = 500
-			gui.Parent = gen
+				-- Billboard NameTag
+				if not gen:FindFirstChild("NameTag") then
+					local gui = Instance.new("BillboardGui")
+					gui.Name = "NameTag"
+					gui.Size = UDim2.new(0, 200, 0, 80)
+					gui.StudsOffset = Vector3.new(0,4,0)
+					gui.AlwaysOnTop = true
+					gui.MaxDistance = 500
+					gui.Adornee = mainPart
+					gui.Parent = mainPart
 
-			local nameLabel = Instance.new("TextLabel")
-			nameLabel.Size = UDim2.new(1,0,0.33,0)
-			nameLabel.BackgroundTransparency = 1
-			nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
-			nameLabel.TextStrokeTransparency = 0.2
-			nameLabel.Font = Enum.Font.SourceSansBold
-			nameLabel.TextScaled = true
-			nameLabel.Text = gen.Name
-			nameLabel.Parent = gui
-
-			local healthLabel = Instance.new("TextLabel")
-			healthLabel.Position = UDim2.new(0,0,0.33,0)
-			healthLabel.Size = UDim2.new(1,0,0.33,0)
-			healthLabel.BackgroundTransparency = 1
-			healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
-			healthLabel.TextStrokeTransparency = 0.2
-			healthLabel.Font = Enum.Font.SourceSansBold
-			healthLabel.TextScaled = true
-			healthLabel.Parent = gui
-
-			local usingLabel = Instance.new("TextLabel")
-			usingLabel.Position = UDim2.new(0,0,0.66,0)
-			usingLabel.Size = UDim2.new(1,0,0.33,0)
-			usingLabel.BackgroundTransparency = 1
-			usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
-			usingLabel.TextStrokeTransparency = 0.2
-			usingLabel.Font = Enum.Font.SourceSansBold
-			usingLabel.TextScaled = true
-			usingLabel.Parent = gui
-
-			local health = gen:FindFirstChild("health")
-			local inUse = gen:FindFirstChild("inUse")
-			local plrUsing = gen:FindFirstChild("plrUsing")
-
-			if health and inUse and plrUsing then
-				RunService.RenderStepped:Connect(function()
-					pcall(function()
-						healthLabel.Text = "Health: "..tostring(health.Value)
-						usingLabel.Text = (inUse.Value and ("In Use: "..tostring(plrUsing.Value))) or ""
-					end)
-				end)
+					local nameLabel = Instance.new("TextLabel")
+					nameLabel.Size = UDim2.new(1,0,0.33,0)
+					nameLabel.BackgroundTransparency = 1
+					nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
+					nameLabel.TextStrokeTransparency = 0.2
+					nameLabel.Font = Enum.Font.SourceSansBold
+					nameLabel.TextScaled = true
+					nameLabel.Text = gen.Name
+					nameLabel.Parent = gui
+				end
 			end
 		end
 	end
