@@ -300,118 +300,75 @@ createButton("Intruder ESP", function()
 end)
 
 createButton("Generator ESP", function()
-	local gensFolder = workspace:WaitForChild("Generators")
-	for _, gen in pairs(gensFolder:GetChildren()) do
-		local mainPart = nil
-		if gen:IsA("Model") then
-			mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
-		elseif gen:IsA("BasePart") then
-			mainPart = gen
-		end
+    local gensFolder = workspace:WaitForChild("Generators")
 
-		if mainPart then
-			-- Highlight
-			highlightTarget(gen, Color3.fromRGB(255,255,0))
+    for _, gen in pairs(gensFolder:GetChildren()) do
+        local mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
+        if not mainPart then continue end
 
-			-- Tracer
-			local line = Drawing.new("Line")
-			line.Visible = true
-			line.Color = Color3.fromRGB(255,255,0)
-			line.Thickness = 2
-			local conn
-			conn = RunService.RenderStepped:Connect(function()
-				if mainPart then
-					local pos, onScreen = Camera:WorldToViewportPoint(mainPart.Position)
-					if onScreen then
-						line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
-						line.To = Vector2.new(pos.X, pos.Y)
-						line.Visible = true
-					else
-						line.Visible = false
-					end
-				else
-					line.Visible = false
-					conn:Disconnect()
-					line:Remove()
-				end
-			end)
+        highlightTarget(gen, Color3.fromRGB(255,255,0))
+        createTracer(gen, Color3.fromRGB(255,255,0))
 
-			-- Billboard Gui Labels
-			if not gen:FindFirstChild("NameTag") then
-				local gui = Instance.new("BillboardGui")
-				gui.Name = "NameTag"
-				gui.Size = UDim2.new(0,200,0,80)
-				gui.StudsOffset = Vector3.new(0,4,0)
-				gui.AlwaysOnTop = true
-				gui.MaxDistance = 500
-				gui.Parent = gen
+        if not gen:FindFirstChild("NameTag") then
+            local gui = Instance.new("BillboardGui")
+            gui.Name = "NameTag"
+            gui.Size = UDim2.new(0,200,0,80)
+            gui.StudsOffset = Vector3.new(0,4,0)
+            gui.AlwaysOnTop = true
+            gui.MaxDistance = 500
+            gui.Parent = gen
 
-				local nameLabel = Instance.new("TextLabel")
-				nameLabel.Size = UDim2.new(1,0,0.33,0)
-				nameLabel.BackgroundTransparency = 1
-				nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
-				nameLabel.TextStrokeTransparency = 0.2
-				nameLabel.Font = Enum.Font.SourceSansBold
-				nameLabel.TextScaled = true
-				nameLabel.Text = "Generator: "..gen.Name
-				nameLabel.Parent = gui
+            local nameLabel = Instance.new("TextLabel")
+            nameLabel.Size = UDim2.new(1,0,0.33,0)
+            nameLabel.BackgroundTransparency = 1
+            nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
+            nameLabel.TextStrokeTransparency = 0.2
+            nameLabel.Font = Enum.Font.SourceSansBold
+            nameLabel.TextScaled = true
+            nameLabel.Text = gen.Name
+            nameLabel.Parent = gui
 
-				local healthLabel = Instance.new("TextLabel")
-				healthLabel.Position = UDim2.new(0,0,0.33,0)
-				healthLabel.Size = UDim2.new(1,0,0.33,0)
-				healthLabel.BackgroundTransparency = 1
-				healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
-				healthLabel.TextStrokeTransparency = 0.2
-				healthLabel.Font = Enum.Font.SourceSansBold
-				healthLabel.TextScaled = true
-				healthLabel.Parent = gui
+            local healthLabel = Instance.new("TextLabel")
+            healthLabel.Position = UDim2.new(0,0,0.33,0)
+            healthLabel.Size = UDim2.new(1,0,0.33,0)
+            healthLabel.BackgroundTransparency = 1
+            healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
+            healthLabel.TextStrokeTransparency = 0.2
+            healthLabel.Font = Enum.Font.SourceSansBold
+            healthLabel.TextScaled = true
+            healthLabel.Parent = gui
 
-				local usingLabel = Instance.new("TextLabel")
-				usingLabel.Position = UDim2.new(0,0,0.66,0)
-				usingLabel.Size = UDim2.new(1,0,0.33,0)
-				usingLabel.BackgroundTransparency = 1
-				usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
-				usingLabel.TextStrokeTransparency = 0.2
-				usingLabel.Font = Enum.Font.SourceSansBold
-				usingLabel.TextScaled = true
-				usingLabel.Parent = gui
+            local usingLabel = Instance.new("TextLabel")
+            usingLabel.Position = UDim2.new(0,0,0.66,0)
+            usingLabel.Size = UDim2.new(1,0,0.33,0)
+            usingLabel.BackgroundTransparency = 1
+            usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
+            usingLabel.TextStrokeTransparency = 0.2
+            usingLabel.Font = Enum.Font.SourceSansBold
+            usingLabel.TextScaled = true
+            usingLabel.Parent = gui
 
-				local health = gen:WaitForChild("health")
-				local inUse = gen:WaitForChild("inUse")
-				local plrUsing = gen:WaitForChild("plrUsing")
+            local health = gen:WaitForChild("health")
+            local inUse = gen:WaitForChild("inUse")
+            local plrUsing = gen:WaitForChild("plrUsing")
 
-				RunService.RenderStepped:Connect(function()
-					pcall(function()
-						healthLabel.Text = "Health: "..tostring(health.Value)
-						if inUse.Value == true then
-							usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
-						else
-							usingLabel.Text = ""
-						end
-					end)
-				end)
-			end
-		end
-	end
+            RunService.RenderStepped:Connect(function()
+                healthLabel.Text = "Health: "..tostring(health.Value)
+                usingLabel.Text = (inUse.Value and ("In Use: "..tostring(plrUsing.Value))) or ""
+            end)
+        end
+    end
 end)
 
 -- Kill the Intruder
 createButton("Kill the Intruder", function()
-	local intruder = workspace:FindFirstChild("Intruder")
-	if intruder then
-		intruder:Destroy()
-		print("Intruder destroyed!")
-	else
-		ErrorLog.Text = "Error Log: Intruder not found."
-	end
+    local intruder = workspace:FindFirstChild("Intruder")
+    if intruder then intruder:Destroy() end
 end)
 
 -- Return to Lift
 createButton("Return to Lift", function()
-	local char = LocalPlayer.Character
-	if char and char:FindFirstChild("HumanoidRootPart") then
-		char.HumanoidRootPart.CFrame = CFrame.new(28,4,-39)
-	end
+    tpTo(Vector3.new(28,4,-39))
 end)
 
 print("The Intruder - Mineshaft Script Loaded Successfully")
