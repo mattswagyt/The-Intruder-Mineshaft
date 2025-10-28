@@ -11,11 +11,12 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
 
---// UI Setup (matching Hospital UI)
+--// UI Setup (Hospital-style)
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
 local ErrorLog = Instance.new("TextLabel")
+local ButtonContainer = Instance.new("ScrollingFrame")
 local UIListLayout = Instance.new("UIListLayout")
 
 ScreenGui.Parent = PlayerGui
@@ -24,8 +25,8 @@ ScreenGui.Name = "IntruderMineshaftUI"
 
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MainFrame.Size = UDim2.new(0, 300, 0, 450) -- same as Hospital UI
-MainFrame.Position = UDim2.new(0.5, 301, 0.5, -549) -- same as Hospital UI
+MainFrame.Size = UDim2.new(0, 300, 0, 450) -- fixed visible size
+MainFrame.Position = UDim2.new(0.5, 301, 0.5, -549)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
@@ -41,6 +42,7 @@ Title.TextSize = 18
 ErrorLog.Parent = MainFrame
 ErrorLog.Text = "Error Log: None"
 ErrorLog.Size = UDim2.new(1, 0, 0, 30)
+ErrorLog.Position = UDim2.new(0, 0, 0, 35)
 ErrorLog.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 ErrorLog.TextColor3 = Color3.fromRGB(255, 85, 85)
 ErrorLog.Font = Enum.Font.SourceSans
@@ -48,9 +50,24 @@ ErrorLog.TextSize = 14
 ErrorLog.TextWrapped = true
 ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
-UIListLayout.Parent = MainFrame
+-- ButtonContainer (scrollable)
+ButtonContainer.Parent = MainFrame
+ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- fill remaining frame
+ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
+ButtonContainer.BackgroundTransparency = 1
+ButtonContainer.ScrollBarThickness = 6
+ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+-- UIListLayout inside ButtonContainer
+UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+-- Adjust CanvasSize automatically
+UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+end)
 
 --// Toggle UI
 UIS.InputBegan:Connect(function(input, processed)
@@ -62,8 +79,8 @@ end)
 -- Button creator function
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
-    Button.Parent = MainFrame
-    Button.Size = UDim2.new(1, 0, 0, 30)
+    Button.Parent = ButtonContainer -- parent to scrollable container
+    Button.Size = UDim2.new(0.95, 0, 0, 30) -- slightly smaller for padding
     Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.Font = Enum.Font.SourceSans
