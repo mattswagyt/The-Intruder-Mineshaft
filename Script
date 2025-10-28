@@ -49,15 +49,20 @@ ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
 -- Create container for buttons
 local ButtonContainer = Instance.new("Frame")
+ButtonContainer.Name = "ButtonContainer"
 ButtonContainer.Parent = MainFrame
-ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- Leaves space for title + error log
-ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
 ButtonContainer.BackgroundTransparency = 1
+-- Automatically size to remaining height under Title + ErrorLog
+ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- 70 px reserved for Title + ErrorLog
+ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
 
+-- Add UIListLayout to handle button alignment
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.FillDirection = Enum.FillDirection.Vertical
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center -- center buttons horizontally
 
 --// Toggle UI
 UIS.InputBegan:Connect(function(input, processed)
@@ -66,23 +71,28 @@ UIS.InputBegan:Connect(function(input, processed)
 	end
 end)
 
---// Function to create buttons
+-- Function to create buttons
 local function createButton(name, callback)
-	local Button = Instance.new("TextButton")
-	Button.Parent = ButtonContainer
-	Button.Text = name
-	Button.Size = UDim2.new(1,0,0,30)
-	Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	Button.TextColor3 = Color3.fromRGB(255,255,255)
-	Button.Font = Enum.Font.SourceSans
-	Button.TextSize = 16
-	Button.MouseButton1Click:Connect(function()
-		local success, err = pcall(callback)
-		if not success then
-			ErrorLog.Text = "Error Log: "..tostring(err)
-		end
-	end)
-	return Button
+    local Button = Instance.new("TextButton")
+    Button.Name = name:gsub(" ", "") .. "Button"
+    Button.Parent = ButtonContainer
+    Button.Size = UDim2.new(0.9, 0, 0, 30) -- 90% width, 30px height
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.SourceSans
+    Button.TextSize = 16
+    Button.Text = name
+    Button.AutoButtonColor = true
+
+    -- Connect click with error handling
+    Button.MouseButton1Click:Connect(function()
+        local success, err = pcall(callback)
+        if not success then
+            ErrorLog.Text = "Error Log: "..tostring(err)
+        end
+    end)
+
+    return Button
 end
 
 --// ESP Helpers
@@ -310,9 +320,14 @@ createButton("Generator ESP", function()
     local gensFolder = workspace:WaitForChild("Generators")
 
     for _, gen in pairs(gensFolder:GetChildren()) do
+        -- Skip non-Model objects
+        if not gen:IsA("Model") then continue end
+
+        -- Get a main part for tracer/highlight
         local mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
         if not mainPart then continue end
 
+        -- Highlight generator
         highlightTarget(gen, Color3.fromRGB(255,255,0))
         createTracer(gen, Color3.fromRGB(255,255,0))
 
@@ -325,6 +340,7 @@ createButton("Generator ESP", function()
             gui.MaxDistance = 500
             gui.Parent = gen
 
+            -- Name label
             local nameLabel = Instance.new("TextLabel")
             nameLabel.Size = UDim2.new(1,0,0.33,0)
             nameLabel.BackgroundTransparency = 1
@@ -335,6 +351,7 @@ createButton("Generator ESP", function()
             nameLabel.Text = gen.Name
             nameLabel.Parent = gui
 
+            -- Health label
             local healthLabel = Instance.new("TextLabel")
             healthLabel.Position = UDim2.new(0,0,0.33,0)
             healthLabel.Size = UDim2.new(1,0,0.33,0)
@@ -345,6 +362,7 @@ createButton("Generator ESP", function()
             healthLabel.TextScaled = true
             healthLabel.Parent = gui
 
+            -- In-use label
             local usingLabel = Instance.new("TextLabel")
             usingLabel.Position = UDim2.new(0,0,0.66,0)
             usingLabel.Size = UDim2.new(1,0,0.33,0)
@@ -355,14 +373,19 @@ createButton("Generator ESP", function()
             usingLabel.TextScaled = true
             usingLabel.Parent = gui
 
-            local health = gen:WaitForChild("health")
-            local inUse = gen:WaitForChild("inUse")
-            local plrUsing = gen:WaitForChild("plrUsing")
+            -- Wait for values
+            local health = gen:FindFirstChild("health")
+            local inUse = gen:FindFirstChild("inUse")
+            local plrUsing = gen:FindFirstChild("plrUsing")
 
-            RunService.RenderStepped:Connect(function()
-                healthLabel.Text = "Health: "..tostring(health.Value)
-                usingLabel.Text = (inUse.Value and ("In Use: "..tostring(plrUsing.Value))) or ""
-            end)
+            if health and inUse and plrUsing then
+                RunService.RenderStepped:Connect(function()
+                    pcall(function()
+                        healthLabel.Text = "Health: "..tostring(health.Value)
+                        usingLabel.Text = (inUse.Value and ("In Use: "..tostring(plrUsing.Value))) or ""
+                    end)
+                end)
+            end
         end
     end
 end)
