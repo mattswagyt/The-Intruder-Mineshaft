@@ -49,20 +49,15 @@ ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
 -- Create container for buttons
 local ButtonContainer = Instance.new("Frame")
-ButtonContainer.Name = "ButtonContainer"
 ButtonContainer.Parent = MainFrame
-ButtonContainer.BackgroundTransparency = 1
--- Automatically size to remaining height under Title + ErrorLog
-ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- 70 px reserved for Title + ErrorLog
+ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- Leaves space for title + error log
 ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
+ButtonContainer.BackgroundTransparency = 1
 
--- Add UIListLayout to handle button alignment
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.FillDirection = Enum.FillDirection.Vertical
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center -- center buttons horizontally
 
 --// Toggle UI
 UIS.InputBegan:Connect(function(input, processed)
@@ -71,28 +66,23 @@ UIS.InputBegan:Connect(function(input, processed)
 	end
 end)
 
--- Function to create buttons
+--// Function to create buttons
 local function createButton(name, callback)
-    local Button = Instance.new("TextButton")
-    Button.Name = name:gsub(" ", "") .. "Button"
-    Button.Parent = ButtonContainer
-    Button.Size = UDim2.new(0.9, 0, 0, 30) -- 90% width, 30px height
-    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Font = Enum.Font.SourceSans
-    Button.TextSize = 16
-    Button.Text = name
-    Button.AutoButtonColor = true
-
-    -- Connect click with error handling
-    Button.MouseButton1Click:Connect(function()
-        local success, err = pcall(callback)
-        if not success then
-            ErrorLog.Text = "Error Log: "..tostring(err)
-        end
-    end)
-
-    return Button
+	local Button = Instance.new("TextButton")
+	Button.Parent = ButtonContainer
+	Button.Text = name
+	Button.Size = UDim2.new(1,0,0,30)
+	Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	Button.TextColor3 = Color3.fromRGB(255,255,255)
+	Button.Font = Enum.Font.SourceSans
+	Button.TextSize = 16
+	Button.MouseButton1Click:Connect(function()
+		local success, err = pcall(callback)
+		if not success then
+			ErrorLog.Text = "Error Log: "..tostring(err)
+		end
+	end)
+	return Button
 end
 
 --// ESP Helpers
