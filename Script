@@ -175,6 +175,51 @@ createButton("God Mode (WIP)", function()
 	print("God Mode feature coming soon!")
 end)
 
+createButton("Block Generators", function()
+    -- Helper function to create a wall between two positions
+    local function createWall(startCFrame, endCFrame)
+        local startPos = startCFrame.Position
+        local endPos = endCFrame.Position
+        
+        local wall = Instance.new("Part")
+        wall.Anchored = true
+        wall.CanCollide = true
+        wall.BrickColor = BrickColor.new("Really red")
+        wall.Transparency = 0.5 -- change to 0 for fully visible
+        wall.Parent = workspace
+
+        -- Compute size and position
+        local size = Vector3.new(
+            math.abs(endPos.X - startPos.X) ~= 0 and math.abs(endPos.X - startPos.X) or 1,
+            10, -- tall enough to block completely
+            math.abs(endPos.Z - startPos.Z) ~= 0 and math.abs(endPos.Z - startPos.Z) or 1
+        )
+        wall.Size = size
+        
+        -- Compute middle position
+        local midPos = (startPos + endPos) / 2
+        wall.CFrame = CFrame.new(midPos)
+    end
+
+    -- Generator 3 wall
+    createWall(
+        CFrame.new(111.225021, 5.7249999, 35.350029),
+        CFrame.new(111.225021, 5.7249999, 29.2500458)
+    )
+
+    -- Generator 4 wall
+    createWall(
+        CFrame.new(56.8750191, 5.7249999, 57.2000465),
+        CFrame.new(56.8750191, 5.7249999, 63.7000313)
+    )
+
+    -- Generator 5 wall
+    createWall(
+        CFrame.new(151.250015, 5.7249999, 49.0750427),
+        CFrame.new(157.350006, 5.7249999, 49.0750427)
+    )
+end)
+
 -- Infinite Stamina (WIP)
 createButton("Infinite Stamina (WIP)", function()
 	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
