@@ -16,7 +16,7 @@ local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
 local ErrorLog = Instance.new("TextLabel")
-local ButtonContainer = Instance.new("ScrollingFrame")
+local ButtonContainer = Instance.new("Frame")
 local UIListLayout = Instance.new("UIListLayout")
 
 ScreenGui.Parent = PlayerGui
