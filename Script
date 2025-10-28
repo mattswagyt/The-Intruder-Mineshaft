@@ -299,7 +299,6 @@ createButton("Intruder ESP", function()
 	end
 end)
 
--- Generator ESP (with proper tracers)
 createButton("Generator ESP", function()
 	local gensFolder = workspace:WaitForChild("Generators")
 	for _, gen in pairs(gensFolder:GetChildren()) do
@@ -337,65 +336,64 @@ createButton("Generator ESP", function()
 				end
 			end)
 
-			-- BillboardGui
-if not gen:FindFirstChild("NameTag") then
-    local gui = Instance.new("BillboardGui")
-    gui.Name = "NameTag"
-    gui.Size = UDim2.new(0,200,0,80) -- made slightly taller
-    gui.StudsOffset = Vector3.new(0,4,0)
-    gui.AlwaysOnTop = true
-    gui.MaxDistance = 500
-    gui.Parent = gen
+			-- Billboard Gui Labels
+			if not gen:FindFirstChild("NameTag") then
+				local gui = Instance.new("BillboardGui")
+				gui.Name = "NameTag"
+				gui.Size = UDim2.new(0,200,0,80)
+				gui.StudsOffset = Vector3.new(0,4,0)
+				gui.AlwaysOnTop = true
+				gui.MaxDistance = 500
+				gui.Parent = gen
 
-    -- ✅ NEW: Generator Name Label (top)
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1,0,0.33,0)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
-    nameLabel.TextStrokeTransparency = 0.2
-    nameLabel.Font = Enum.Font.SourceSansBold
-    nameLabel.TextScaled = true
-    nameLabel.Text = "Generator " .. tostring(gen.Name)
-    nameLabel.Parent = gui
+				local nameLabel = Instance.new("TextLabel")
+				nameLabel.Size = UDim2.new(1,0,0.33,0)
+				nameLabel.BackgroundTransparency = 1
+				nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
+				nameLabel.TextStrokeTransparency = 0.2
+				nameLabel.Font = Enum.Font.SourceSansBold
+				nameLabel.TextScaled = true
+				nameLabel.Text = "Generator: "..gen.Name
+				nameLabel.Parent = gui
 
-    -- Health label (middle)
-    local healthLabel = Instance.new("TextLabel")
-    healthLabel.Position = UDim2.new(0,0,0.33,0)
-    healthLabel.Size = UDim2.new(1,0,0.33,0)
-    healthLabel.BackgroundTransparency = 1
-    healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
-    healthLabel.TextStrokeTransparency = 0.2
-    healthLabel.Font = Enum.Font.SourceSansBold
-    healthLabel.TextScaled = true
-    healthLabel.Parent = gui
+				local healthLabel = Instance.new("TextLabel")
+				healthLabel.Position = UDim2.new(0,0,0.33,0)
+				healthLabel.Size = UDim2.new(1,0,0.33,0)
+				healthLabel.BackgroundTransparency = 1
+				healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
+				healthLabel.TextStrokeTransparency = 0.2
+				healthLabel.Font = Enum.Font.SourceSansBold
+				healthLabel.TextScaled = true
+				healthLabel.Parent = gui
 
-    -- In-use label (bottom)
-    local usingLabel = Instance.new("TextLabel")
-    usingLabel.Position = UDim2.new(0,0,0.66,0)
-    usingLabel.Size = UDim2.new(1,0,0.33,0)
-    usingLabel.BackgroundTransparency = 1
-    usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
-    usingLabel.TextStrokeTransparency = 0.2
-    usingLabel.Font = Enum.Font.SourceSansBold
-    usingLabel.TextScaled = true
-    usingLabel.Parent = gui
+				local usingLabel = Instance.new("TextLabel")
+				usingLabel.Position = UDim2.new(0,0,0.66,0)
+				usingLabel.Size = UDim2.new(1,0,0.33,0)
+				usingLabel.BackgroundTransparency = 1
+				usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
+				usingLabel.TextStrokeTransparency = 0.2
+				usingLabel.Font = Enum.Font.SourceSansBold
+				usingLabel.TextScaled = true
+				usingLabel.Parent = gui
 
-    -- Values
-    local health = gen:WaitForChild("health")
-    local inUse = gen:WaitForChild("inUse")
-    local plrUsing = gen:WaitForChild("plrUsing")
+				local health = gen:WaitForChild("health")
+				local inUse = gen:WaitForChild("inUse")
+				local plrUsing = gen:WaitForChild("plrUsing")
 
-    RunService.RenderStepped:Connect(function()
-        pcall(function()
-            healthLabel.Text = "Health: "..tostring(health.Value)
-            if inUse.Value == true then
-                usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
-            else
-                usingLabel.Text = ""
-            end
-        end)
-    end)
-end
+				RunService.RenderStepped:Connect(function()
+					pcall(function()
+						healthLabel.Text = "Health: "..tostring(health.Value)
+						if inUse.Value == true then
+							usingLabel.Text = "Being used by "..tostring(plrUsing.Value)
+						else
+							usingLabel.Text = ""
+						end
+					end)
+				end)
+			end
+		end
+	end
+end)
 
 -- Kill the Intruder
 createButton("Kill the Intruder", function()
