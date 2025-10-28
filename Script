@@ -50,23 +50,24 @@ ErrorLog.TextSize = 14
 ErrorLog.TextWrapped = true
 ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
--- ButtonContainer (scrollable)
+-- ButtonContainer 
+local ButtonContainer = Instance.new("Frame")
 ButtonContainer.Parent = MainFrame
-ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- fill remaining frame
+ButtonContainer.Size = UDim2.new(1, 0, 0, 0) -- height will auto-update
 ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
 ButtonContainer.BackgroundTransparency = 1
-ButtonContainer.ScrollBarThickness = 6
-ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
 
 -- UIListLayout inside ButtonContainer
+local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- <-- changed to Left
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 
--- Adjust CanvasSize automatically
+-- Adjust frame size automatically based on buttons
 UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+    ButtonContainer.Size = UDim2.new(1, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+    MainFrame.Size = UDim2.new(0, 300, 0, 70 + UIListLayout.AbsoluteContentSize.Y + 10) -- 10px padding at bottom
 end)
 
 --// Toggle UI
@@ -80,8 +81,8 @@ end)
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
     Button.Parent = ButtonContainer
-    Button.Size = UDim2.new(1, -10, 0, 30) -- full width with 5px padding on each side
-    Button.Position = UDim2.new(0,5,0,0) -- 5px left padding
+    Button.Size = UDim2.new(1, -10, 0, 30) -- full width minus padding
+    Button.Position = UDim2.new(0, 5, 0, 0) -- 5px left padding
     Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.Font = Enum.Font.SourceSans
