@@ -11,22 +11,25 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
 
---// UI Setup
+--// UI Setup (matching Hospital UI)
 local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local ErrorLog = Instance.new("TextLabel")
+local UIListLayout = Instance.new("UIListLayout")
+
 ScreenGui.Parent = PlayerGui
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Name = "IntruderMineshaftUI"
 
-local MainFrame = Instance.new("Frame")
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MainFrame.Size = UDim2.new(0, 300, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+MainFrame.Size = UDim2.new(0, 300, 0, 450) -- same as Hospital UI
+MainFrame.Position = UDim2.new(0.5, 301, 0.5, -549) -- same as Hospital UI
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
 
-local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
 Title.Text = "The Intruder - Mineshaft (By BMF)"
 Title.Size = UDim2.new(1, 0, 0, 30)
@@ -35,11 +38,9 @@ Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 18
 
-local ErrorLog = Instance.new("TextLabel")
 ErrorLog.Parent = MainFrame
 ErrorLog.Text = "Error Log: None"
 ErrorLog.Size = UDim2.new(1, 0, 0, 30)
-ErrorLog.Position = UDim2.new(0,0,0,35)
 ErrorLog.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 ErrorLog.TextColor3 = Color3.fromRGB(255, 85, 85)
 ErrorLog.Font = Enum.Font.SourceSans
@@ -47,19 +48,9 @@ ErrorLog.TextSize = 14
 ErrorLog.TextWrapped = true
 ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
--- Button container
-local ButtonContainer = Instance.new("Frame")
-ButtonContainer.Parent = MainFrame
-ButtonContainer.Size = UDim2.new(1, 0, 1, -70)
-ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
-ButtonContainer.BackgroundTransparency = 1
-
--- UIListLayout inside container
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = ButtonContainer
+UIListLayout.Parent = MainFrame
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 --// Toggle UI
 UIS.InputBegan:Connect(function(input, processed)
@@ -71,8 +62,8 @@ end)
 -- Button creator function
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
-    Button.Parent = ButtonContainer -- ✅ must parent to container
-    Button.Size = UDim2.new(0.9, 0, 0, 30) -- optional: 90% width for nice padding
+    Button.Parent = MainFrame
+    Button.Size = UDim2.new(1, 0, 0, 30)
     Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.Font = Enum.Font.SourceSans
@@ -85,8 +76,6 @@ local function createButton(name, callback)
 end
 
 --// ESP Helpers
-
--- Highlight helper
 local function highlightTarget(target, color)
 	if target:FindFirstChildOfClass("Highlight") then return end
 	local highlight = Instance.new("Highlight")
@@ -99,7 +88,6 @@ local function highlightTarget(target, color)
 	highlight.Parent = target
 end
 
--- Tracer helper
 local function createTracer(target, color)
 	local line = Drawing.new("Line")
 	line.Visible = true
@@ -111,7 +99,7 @@ local function createTracer(target, color)
 			local hrp = target:FindFirstChild("HumanoidRootPart")
 			local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
 			if onScreen then
-				line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y) -- bottom center
+				line.From = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y)
 				line.To = Vector2.new(pos.X, pos.Y)
 				line.Visible = true
 			else
@@ -125,7 +113,6 @@ local function createTracer(target, color)
 	end)
 end
 
--- Billboard name tag helper
 local function createNameTag(target, text, color)
 	if target:FindFirstChild("NameTag") then return end
 	local billboard = Instance.new("BillboardGui")
@@ -169,25 +156,21 @@ createButton("God Mode (WIP)", function()
 	print("God Mode feature coming soon!")
 end)
 
+-- Infinite Stamina (WIP)
 createButton("Infinite Stamina (WIP)", function()
-	local Players = game:GetService("Players")
-	local UIS = game:GetService("UserInputService")
-	local LocalPlayer = Players.LocalPlayer
 	local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 	local Humanoid = Character:WaitForChild("Humanoid")
 
-	-- Destroy Regen paths
-	local function safeDestroy(path)
-		if path and path.Destroy then
-			pcall(function() path:Destroy() end)
+	local function safeDestroy(obj)
+		if obj and obj.Destroy then
+			pcall(function() obj:Destroy() end)
 		end
 	end
 
-	safeDestroy(game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui") and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Stamina") and game:GetService("Players").LocalPlayer.PlayerGui.Stamina:FindFirstChild("StaminaDisplay") and game:GetService("Players").LocalPlayer.PlayerGui.Stamina.StaminaDisplay:FindFirstChild("Regen"))
-	safeDestroy(game:GetService("StarterGui"):FindFirstChild("Stamina") and game:GetService("StarterGui").Stamina:FindFirstChild("StaminaDisplay") and game:GetService("StarterGui").Stamina.StaminaDisplay:FindFirstChild("Regen"))
+	safeDestroy(LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("Stamina") and LocalPlayer.PlayerGui.Stamina:FindFirstChild("StaminaDisplay") and LocalPlayer.PlayerGui.Stamina.StaminaDisplay:FindFirstChild("Regen"))
+	safeDestroy(StarterGui:FindFirstChild("Stamina") and StarterGui.Stamina:FindFirstChild("StaminaDisplay") and StarterGui.Stamina.StaminaDisplay:FindFirstChild("Regen"))
 
-	-- Infinite stamina setup
-	local staminaGui = game:GetService("StarterGui"):FindFirstChild("Stamina")
+	local staminaGui = StarterGui:FindFirstChild("Stamina")
 	if staminaGui then
 		local display = staminaGui:FindFirstChild("StaminaDisplay")
 		if display then
@@ -203,7 +186,6 @@ createButton("Infinite Stamina (WIP)", function()
 						wait(0.1)
 					end
 				end)
-				print("Infinite Stamina enabled!")
 			else
 				ErrorLog.Text = "Error Log: Current or Active value not found."
 			end
@@ -214,17 +196,15 @@ createButton("Infinite Stamina (WIP)", function()
 		ErrorLog.Text = "Error Log: Stamina GUI not found."
 	end
 
-	-- Shift-based speed control
+	-- Shift speed
 	local shiftHeld = false
-
-	UIS.InputBegan:Connect(function(input, gameProcessed)
-		if gameProcessed then return end
+	UIS.InputBegan:Connect(function(input, gp)
+		if gp then return end
 		if input.KeyCode == Enum.KeyCode.LeftShift then
 			shiftHeld = true
 			Humanoid.WalkSpeed = 16
 		end
 	end)
-
 	UIS.InputEnded:Connect(function(input)
 		if input.KeyCode == Enum.KeyCode.LeftShift then
 			shiftHeld = false
@@ -235,32 +215,17 @@ end)
 
 -- Teleport Helper
 local function tpTo(pos)
-    local plr = game.Players.LocalPlayer
-    if plr and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-        plr.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
-    end
+	if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
+	end
 end
 
 -- TP Buttons
-createButton("TP to Gen 1", function()
-    tpTo(Vector3.new(49, 4, -87))
-end)
-
-createButton("TP to Gen 2", function()
-    tpTo(Vector3.new(131, 4, -88))
-end)
-
-createButton("TP to Gen 3", function()
-    tpTo(Vector3.new(127, 4, 32))
-end)
-
-createButton("TP to Gen 4", function()
-    tpTo(Vector3.new(29, 4, 60))
-end)
-
-createButton("TP to Gen 5", function()
-    tpTo(Vector3.new(154, 4, 60))
-end)
+createButton("TP to Gen 1", function() tpTo(Vector3.new(49, 4, -87)) end)
+createButton("TP to Gen 2", function() tpTo(Vector3.new(131, 4, -88)) end)
+createButton("TP to Gen 3", function() tpTo(Vector3.new(127, 4, 32)) end)
+createButton("TP to Gen 4", function() tpTo(Vector3.new(29, 4, 60)) end)
+createButton("TP to Gen 5", function() tpTo(Vector3.new(154, 4, 60)) end)
 
 -- Full Bright
 createButton("Full Bright", function()
@@ -269,30 +234,18 @@ createButton("Full Bright", function()
 	Lighting.FogEnd = 100000
 	Lighting.GlobalShadows = false
 	Lighting.OutdoorAmbient = Color3.new(1,1,1)
-	print("Full Bright activated!")
 end)
 
+-- Never Fail Generators
 createButton("Never Fail Generators", function()
-    -- Remove puzzle UI (local copy)
-    local plr = game:GetService("Players").LocalPlayer
-
-    local function safeDestroy(obj)
-        if obj and obj.Destroy then
-            obj:Destroy()
-        end
-    end
-
-    -- PlayerGui puzzle
-    safeDestroy(plr:FindFirstChild("PlayerGui") and plr.PlayerGui:FindFirstChild("Puzzle"))
-
-    -- Backpack explode
-    safeDestroy(plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Explode"))
-
-    -- StarterGui
-    safeDestroy(game:GetService("StarterGui"):FindFirstChild("Puzzle"))
-
-    -- StarterPack explode
-    safeDestroy(game:GetService("StarterPack"):FindFirstChild("Explode"))
+	local plr = LocalPlayer
+	local function safeDestroy(obj)
+		if obj and obj.Destroy then obj:Destroy() end
+	end
+	safeDestroy(plr:FindFirstChild("PlayerGui") and plr.PlayerGui:FindFirstChild("Puzzle"))
+	safeDestroy(plr:FindFirstChild("Backpack") and plr.Backpack:FindFirstChild("Explode"))
+	safeDestroy(StarterGui:FindFirstChild("Puzzle"))
+	safeDestroy(game:GetService("StarterPack"):FindFirstChild("Explode"))
 end)
 
 -- Intruder ESP
@@ -305,89 +258,80 @@ createButton("Intruder ESP", function()
 	end
 end)
 
+-- Generator ESP
 createButton("Generator ESP", function()
-    local gensFolder = workspace:WaitForChild("Generators")
+	local gensFolder = workspace:WaitForChild("Generators")
+	for _, gen in pairs(gensFolder:GetChildren()) do
+		if not gen:IsA("Model") then continue end
+		local mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
+		if not mainPart then continue end
+		highlightTarget(gen, Color3.fromRGB(255,255,0))
+		createTracer(gen, Color3.fromRGB(255,255,0))
 
-    for _, gen in pairs(gensFolder:GetChildren()) do
-        -- Skip non-Model objects
-        if not gen:IsA("Model") then continue end
+		if not gen:FindFirstChild("NameTag") then
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "NameTag"
+			gui.Size = UDim2.new(0,200,0,80)
+			gui.StudsOffset = Vector3.new(0,4,0)
+			gui.AlwaysOnTop = true
+			gui.MaxDistance = 500
+			gui.Parent = gen
 
-        -- Get a main part for tracer/highlight
-        local mainPart = gen.PrimaryPart or gen:FindFirstChildWhichIsA("BasePart")
-        if not mainPart then continue end
+			local nameLabel = Instance.new("TextLabel")
+			nameLabel.Size = UDim2.new(1,0,0.33,0)
+			nameLabel.BackgroundTransparency = 1
+			nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
+			nameLabel.TextStrokeTransparency = 0.2
+			nameLabel.Font = Enum.Font.SourceSansBold
+			nameLabel.TextScaled = true
+			nameLabel.Text = gen.Name
+			nameLabel.Parent = gui
 
-        -- Highlight generator
-        highlightTarget(gen, Color3.fromRGB(255,255,0))
-        createTracer(gen, Color3.fromRGB(255,255,0))
+			local healthLabel = Instance.new("TextLabel")
+			healthLabel.Position = UDim2.new(0,0,0.33,0)
+			healthLabel.Size = UDim2.new(1,0,0.33,0)
+			healthLabel.BackgroundTransparency = 1
+			healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
+			healthLabel.TextStrokeTransparency = 0.2
+			healthLabel.Font = Enum.Font.SourceSansBold
+			healthLabel.TextScaled = true
+			healthLabel.Parent = gui
 
-        if not gen:FindFirstChild("NameTag") then
-            local gui = Instance.new("BillboardGui")
-            gui.Name = "NameTag"
-            gui.Size = UDim2.new(0,200,0,80)
-            gui.StudsOffset = Vector3.new(0,4,0)
-            gui.AlwaysOnTop = true
-            gui.MaxDistance = 500
-            gui.Parent = gen
+			local usingLabel = Instance.new("TextLabel")
+			usingLabel.Position = UDim2.new(0,0,0.66,0)
+			usingLabel.Size = UDim2.new(1,0,0.33,0)
+			usingLabel.BackgroundTransparency = 1
+			usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
+			usingLabel.TextStrokeTransparency = 0.2
+			usingLabel.Font = Enum.Font.SourceSansBold
+			usingLabel.TextScaled = true
+			usingLabel.Parent = gui
 
-            -- Name label
-            local nameLabel = Instance.new("TextLabel")
-            nameLabel.Size = UDim2.new(1,0,0.33,0)
-            nameLabel.BackgroundTransparency = 1
-            nameLabel.TextColor3 = Color3.fromRGB(255,255,0)
-            nameLabel.TextStrokeTransparency = 0.2
-            nameLabel.Font = Enum.Font.SourceSansBold
-            nameLabel.TextScaled = true
-            nameLabel.Text = gen.Name
-            nameLabel.Parent = gui
+			local health = gen:FindFirstChild("health")
+			local inUse = gen:FindFirstChild("inUse")
+			local plrUsing = gen:FindFirstChild("plrUsing")
 
-            -- Health label
-            local healthLabel = Instance.new("TextLabel")
-            healthLabel.Position = UDim2.new(0,0,0.33,0)
-            healthLabel.Size = UDim2.new(1,0,0.33,0)
-            healthLabel.BackgroundTransparency = 1
-            healthLabel.TextColor3 = Color3.fromRGB(255,255,0)
-            healthLabel.TextStrokeTransparency = 0.2
-            healthLabel.Font = Enum.Font.SourceSansBold
-            healthLabel.TextScaled = true
-            healthLabel.Parent = gui
-
-            -- In-use label
-            local usingLabel = Instance.new("TextLabel")
-            usingLabel.Position = UDim2.new(0,0,0.66,0)
-            usingLabel.Size = UDim2.new(1,0,0.33,0)
-            usingLabel.BackgroundTransparency = 1
-            usingLabel.TextColor3 = Color3.fromRGB(255,255,0)
-            usingLabel.TextStrokeTransparency = 0.2
-            usingLabel.Font = Enum.Font.SourceSansBold
-            usingLabel.TextScaled = true
-            usingLabel.Parent = gui
-
-            -- Wait for values
-            local health = gen:FindFirstChild("health")
-            local inUse = gen:FindFirstChild("inUse")
-            local plrUsing = gen:FindFirstChild("plrUsing")
-
-            if health and inUse and plrUsing then
-                RunService.RenderStepped:Connect(function()
-                    pcall(function()
-                        healthLabel.Text = "Health: "..tostring(health.Value)
-                        usingLabel.Text = (inUse.Value and ("In Use: "..tostring(plrUsing.Value))) or ""
-                    end)
-                end)
-            end
-        end
-    end
+			if health and inUse and plrUsing then
+				RunService.RenderStepped:Connect(function()
+					pcall(function()
+						healthLabel.Text = "Health: "..tostring(health.Value)
+						usingLabel.Text = (inUse.Value and ("In Use: "..tostring(plrUsing.Value))) or ""
+					end)
+				end)
+			end
+		end
+	end
 end)
 
 -- Kill the Intruder
 createButton("Kill the Intruder", function()
-    local intruder = workspace:FindFirstChild("Intruder")
-    if intruder then intruder:Destroy() end
+	local intruder = workspace:FindFirstChild("Intruder")
+	if intruder then intruder:Destroy() end
 end)
 
 -- Return to Lift
 createButton("Return to Lift", function()
-    tpTo(Vector3.new(28,4,-39))
+	tpTo(Vector3.new(28,4,-39))
 end)
 
 print("The Intruder - Mineshaft Script Loaded Successfully")
