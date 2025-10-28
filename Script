@@ -47,10 +47,17 @@ ErrorLog.TextSize = 14
 ErrorLog.TextWrapped = true
 ErrorLog.TextYAlignment = Enum.TextYAlignment.Top
 
+-- Create container for buttons
+local ButtonContainer = Instance.new("Frame")
+ButtonContainer.Parent = MainFrame
+ButtonContainer.Size = UDim2.new(1, 0, 1, -70) -- Leaves space for title + error log
+ButtonContainer.Position = UDim2.new(0, 0, 0, 70)
+ButtonContainer.BackgroundTransparency = 1
+
 local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = MainFrame
+UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0,5)
+UIListLayout.Padding = UDim.new(0, 5)
 
 --// Toggle UI
 UIS.InputBegan:Connect(function(input, processed)
@@ -62,7 +69,7 @@ end)
 --// Function to create buttons
 local function createButton(name, callback)
 	local Button = Instance.new("TextButton")
-	Button.Parent = MainFrame
+	Button.Parent = ButtonContainer
 	Button.Text = name
 	Button.Size = UDim2.new(1,0,0,30)
 	Button.BackgroundColor3 = Color3.fromRGB(40,40,40)
