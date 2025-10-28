@@ -62,7 +62,7 @@ ButtonContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
 UIListLayout.Parent = ButtonContainer
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- <-- changed to Left
 
 -- Adjust CanvasSize automatically
 UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -79,8 +79,9 @@ end)
 -- Button creator function
 local function createButton(name, callback)
     local Button = Instance.new("TextButton")
-    Button.Parent = ButtonContainer -- parent to scrollable container
-    Button.Size = UDim2.new(0.95, 0, 0, 30) -- slightly smaller for padding
+    Button.Parent = ButtonContainer
+    Button.Size = UDim2.new(1, -10, 0, 30) -- full width with 5px padding on each side
+    Button.Position = UDim2.new(0,5,0,0) -- 5px left padding
     Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Button.TextColor3 = Color3.fromRGB(255, 255, 255)
     Button.Font = Enum.Font.SourceSans
